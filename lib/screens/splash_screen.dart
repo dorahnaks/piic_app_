@@ -77,8 +77,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       if (mounted) _textController.forward();
     });
 
-    // Navigate after delay
-    Future.delayed(const Duration(seconds: 3), () {
+    // Navigate after 5 seconds
+    Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -307,23 +307,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   // Loading indicator
                   FadeTransition(
                     opacity: _textFade,
-                    child: SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          SizedBox(
-                            width: 40,
-                            height: 40,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              valueColor: const AlwaysStoppedAnimation<Color>(
-                                Color(0xFF4FC3F7),
-                              ),
-                            ),
-                          ),
-                        ],
+                    child: const SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFF4FC3F7),
+                        ),
                       ),
                     ),
                   ),
