@@ -1,223 +1,366 @@
 import 'package:flutter/material.dart';
 
+/// PIIC ClusterSave - Admin Dashboard Screen
+/// 
+/// Elegant admin dashboard matching PIIC branding
+/// Features: Real-time statistics, member management, cluster overview
+/// Design: Clean, modern, with signature blue gradient theme
+
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({super.key});
+  const AdminDashboardScreen({Key? key}) : super(key: key);
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
 class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
-  String _selectedCluster = 'All Clusters';
-  
-  // Mock data - will be replaced with Django API calls
-  final Map<String, dynamic> _overallStats = {
-    'total_users': 1247,
-    'active_clusters': 45,
-    'total_savings': 458750000, // UGX
-    'total_investments': 325000000, // UGX
-  };
+  // PIIC Brand Colors - matching home screen
+  static const Color primaryBlue = Color(0xFF4FC3F7);
+  static const Color deepBlue = Color(0xFF0288D1);
+  static const Color softGray = Color(0xFFF5F7FA);
+  static const Color textDark = Color(0xFF2D3748);
+  static const Color textLight = Color(0xFF718096);
+  static const Color successGreen = Color(0xFF66BB6A);
+  static const Color warningOrange = Color(0xFFFF9800);
+  static const Color dangerRed = Color(0xFFEF5350);
 
-  // Cluster-specific data with calculations
-  final List<Map<String, dynamic>> _clusters = [
+  // ==================== MOCK DATA ====================
+  
+  /// Mock list of all platform members with their contribution and risk data
+  final List<Map<String, dynamic>> _mockMembers = [
     {
-      'name': 'Cluster A',
-      'members': 28,
-      'total_savings': 125000000,
-      'status': 'Active',
-      'monthly_contribution': 500000,
+      'id': 1,
+      'name': 'John Okello',
+      'totalContributions': 150000.0,
+      'missedPayments': 0,
+      'latePayments': 1,
+      'lastActivity': '2 hours ago',
+      'lastAmount': 50000.0,
     },
     {
-      'name': 'Cluster B',
-      'members': 35,
-      'total_savings': 98000000,
-      'status': 'Active',
-      'monthly_contribution': 400000,
+      'id': 2,
+      'name': 'Sarah Nambi',
+      'totalContributions': 200000.0,
+      'missedPayments': 2,
+      'latePayments': 1,
+      'lastActivity': '5 hours ago',
+      'lastAmount': 75000.0,
     },
     {
-      'name': 'Cluster C',
-      'members': 22,
-      'total_savings': 87500000,
-      'status': 'Active',
-      'monthly_contribution': 350000,
+      'id': 3,
+      'name': 'David Musoke',
+      'totalContributions': 95000.0,
+      'missedPayments': 1,
+      'latePayments': 3,
+      'lastActivity': '1 day ago',
+      'lastAmount': 25000.0,
     },
     {
-      'name': 'Cluster D',
-      'members': 31,
-      'total_savings': 76250000,
-      'status': 'Active',
-      'monthly_contribution': 450000,
+      'id': 4,
+      'name': 'Grace Akello',
+      'totalContributions': 180000.0,
+      'missedPayments': 0,
+      'latePayments': 0,
+      'lastActivity': '3 hours ago',
+      'lastAmount': 60000.0,
     },
     {
-      'name': 'Cluster E',
-      'members': 18,
-      'total_savings': 72000000,
-      'status': 'Active',
-      'monthly_contribution': 300000,
+      'id': 5,
+      'name': 'Peter Ssali',
+      'totalContributions': 120000.0,
+      'missedPayments': 3,
+      'latePayments': 2,
+      'lastActivity': '6 hours ago',
+      'lastAmount': 40000.0,
+    },
+    {
+      'id': 6,
+      'name': 'Mary Atim',
+      'totalContributions': 165000.0,
+      'missedPayments': 0,
+      'latePayments': 2,
+      'lastActivity': '4 hours ago',
+      'lastAmount': 55000.0,
     },
   ];
 
-  // Calculate totals for selected cluster or all
-  Map<String, dynamic> _calculateFinancials() {
-    int totalSavings = 0;
-    
-    if (_selectedCluster == 'All Clusters') {
-      totalSavings = _overallStats['total_savings'];
-    } else {
-      final cluster = _clusters.firstWhere(
-        (c) => c['name'] == _selectedCluster,
-        orElse: () => {'total_savings': 0},
-      );
-      totalSavings = cluster['total_savings'];
-    }
+  /// Mock list of savings clusters with member counts and totals
+  final List<Map<String, dynamic>> _mockClusters = [
+    {
+      'id': 1,
+      'name': 'Tech Savers',
+      'memberCount': 12,
+      'totalSavings': 450000.0,
+      'color': primaryBlue,
+    },
+    {
+      'id': 2,
+      'name': 'University Fund',
+      'memberCount': 8,
+      'totalSavings': 320000.0,
+      'color': successGreen,
+    },
+    {
+      'id': 3,
+      'name': 'Business Builders',
+      'memberCount': 15,
+      'totalSavings': 680000.0,
+      'color': warningOrange,
+    },
+    {
+      'id': 4,
+      'name': 'Future Leaders',
+      'memberCount': 6,
+      'totalSavings': 210000.0,
+      'color': const Color(0xFF9C27B0),
+    },
+  ];
 
-    // Tax Calculations (Uganda)
-    final withholdingTax = (totalSavings * 0.15).round(); // 15% WHT on interest
-    final localServiceTax = (totalSavings * 0.05).round(); // 5% local service tax
-    
-    // Platform Fees
-    final managementFee = (totalSavings * 0.02).round(); // 2% management fee
-    final transactionFee = (totalSavings * 0.01).round(); // 1% transaction fee
-    
-    final totalDeductions = withholdingTax + localServiceTax + managementFee + transactionFee;
-    final netAmount = totalSavings - totalDeductions;
+  // ==================== CALCULATIONS ====================
 
-    return {
-      'total_savings': totalSavings,
-      'withholding_tax': withholdingTax,
-      'local_service_tax': localServiceTax,
-      'management_fee': managementFee,
-      'transaction_fee': transactionFee,
-      'total_deductions': totalDeductions,
-      'net_amount': netAmount,
-    };
+  /// Calculate total number of platform members
+  int get _totalMembers => _mockMembers.length;
+
+  /// Calculate total number of clusters
+  int get _totalClusters => _mockClusters.length;
+
+  /// Calculate total savings across all members
+  double get _totalSavings {
+    return _mockMembers.fold(
+      0.0,
+      (sum, member) => sum + (member['totalContributions'] as double),
+    );
   }
+
+  /// Calculate number of high-risk members
+  /// High risk: missedPayments >= 2 OR latePayments >= 3
+  int get _highRiskMembers {
+    return _mockMembers.where((member) {
+      int missed = member['missedPayments'] as int;
+      int late = member['latePayments'] as int;
+      return missed >= 2 || late >= 3;
+    }).length;
+  }
+
+  /// Determine risk level for a member
+  String _getRiskLevel(Map<String, dynamic> member) {
+    int missed = member['missedPayments'] as int;
+    int late = member['latePayments'] as int;
+
+    if (missed >= 2 || late >= 3) {
+      return 'High';
+    } else if (missed == 1 || late >= 2) {
+      return 'Medium';
+    } else {
+      return 'Low';
+    }
+  }
+
+  /// Get color for risk level
+  Color _getRiskColor(String riskLevel) {
+    switch (riskLevel) {
+      case 'High':
+        return dangerRed;
+      case 'Medium':
+        return warningOrange;
+      case 'Low':
+        return successGreen;
+      default:
+        return textLight;
+    }
+  }
+
+  /// Format currency in UGX
+  String _formatCurrency(double amount) {
+    return 'UGX ${amount.toStringAsFixed(0).replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]},',
+        )}';
+  }
+
+  // ==================== UI BUILD METHODS ====================
 
   @override
   Widget build(BuildContext context) {
-    final financials = _calculateFinancials();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: const Text(
-          'Admin Dashboard',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Color(0xFF64748B)),
-            onPressed: () {
-              setState(() {});
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Cluster Selector Card
-            _buildClusterSelector(),
+      backgroundColor: Colors.white,
+      appBar: _buildAppBar(),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Welcome Header
+              _buildWelcomeHeader(),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-            // Quick Stats Overview
-            _buildQuickStats(),
+              // Summary Cards Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildSummaryCards(),
+              ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 28),
 
-            // Financial Breakdown Card
-            _buildFinancialBreakdown(financials),
-
-            const SizedBox(height: 24),
-
-            // Tax Explanation Card
-            _buildTaxExplanation(),
-
-            const SizedBox(height: 24),
-
-            // Cluster Details
-            if (_selectedCluster == 'All Clusters') ...[
-              _buildSectionHeader('All Clusters Overview'),
+              // Recent Activity Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildSectionHeader('Recent Activity', Icons.history_rounded),
+              ),
               const SizedBox(height: 12),
-              _buildAllClustersView(),
-            ] else ...[
-              _buildSectionHeader('Cluster Details'),
+              _buildRecentActivity(),
+
+              const SizedBox(height: 28),
+
+              // Cluster Overview Section
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildSectionHeader('Cluster Overview', Icons.groups_rounded),
+              ),
               const SizedBox(height: 12),
-              _buildClusterDetails(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildClusterOverview(),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Quick Admin Actions
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildSectionHeader('Quick Actions', Icons.admin_panel_settings_rounded),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: _buildQuickActions(),
+              ),
+
+              const SizedBox(height: 24),
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildClusterSelector() {
+  /// Build elegant app bar
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      elevation: 0,
+      backgroundColor: Colors.white,
+      leading: IconButton(
+        icon: const Icon(Icons.arrow_back, color: textDark),
+        onPressed: () => Navigator.pop(context),
+      ),
+      title: const Text(
+        'Admin Dashboard',
+        style: TextStyle(
+          color: textDark,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.5,
+        ),
+      ),
+      actions: [
+        Container(
+          margin: const EdgeInsets.only(right: 12),
+          decoration: BoxDecoration(
+            color: softGray,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.refresh_rounded, color: textDark),
+            onPressed: () {
+              setState(() {});
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Dashboard refreshed'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Build welcome header with gradient background
+  Widget _buildWelcomeHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [Color(0xFF4FC3F7), Color(0xFF0288D1)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [primaryBlue, deepBlue],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
+            color: primaryBlue.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          const Text(
-            'Select Cluster',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Welcome, Admin',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Platform Overview',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'All systems operational',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            width: 60,
+            height: 60,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
-            child: DropdownButton<String>(
-              value: _selectedCluster,
-              isExpanded: true,
-              underline: const SizedBox(),
-              dropdownColor: const Color(0xFF0288D1),
-              icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-              items: [
-                'All Clusters',
-                ..._clusters.map((c) => c['name'] as String),
-              ].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedCluster = newValue!;
-                });
-              },
+            child: const Icon(
+              Icons.dashboard_rounded,
+              color: Colors.white,
+              size: 32,
             ),
           ),
         ],
@@ -225,460 +368,292 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildQuickStats() {
-    final financials = _calculateFinancials();
-    
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.3,
+  /// Build summary statistics cards
+  Widget _buildSummaryCards() {
+    return Column(
       children: [
-        _buildStatCard(
-          title: 'Total Savings',
-          value: _formatCurrency(financials['total_savings']),
-          icon: Icons.account_balance_wallet,
-          color: const Color(0xFF4FC3F7),
+        Row(
+          children: [
+            Expanded(
+              child: _buildSummaryCard(
+                title: 'Total Members',
+                value: _totalMembers.toString(),
+                icon: Icons.people_rounded,
+                color: primaryBlue,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildSummaryCard(
+                title: 'Total Clusters',
+                value: _totalClusters.toString(),
+                icon: Icons.groups_rounded,
+                color: successGreen,
+              ),
+            ),
+          ],
         ),
-        _buildStatCard(
-          title: 'Net Amount',
-          value: _formatCurrency(financials['net_amount']),
-          icon: Icons.payments,
-          color: const Color(0xFF10B981),
-        ),
-        _buildStatCard(
-          title: 'Total Taxes',
-          value: _formatCurrency(
-            financials['withholding_tax'] + financials['local_service_tax']
-          ),
-          icon: Icons.receipt_long,
-          color: const Color(0xFFFF9800),
-        ),
-        _buildStatCard(
-          title: 'Platform Fees',
-          value: _formatCurrency(
-            financials['management_fee'] + financials['transaction_fee']
-          ),
-          icon: Icons.business_center,
-          color: const Color(0xFF9C27B0),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _buildSummaryCard(
+                title: 'Total Savings',
+                value: _formatCurrency(_totalSavings),
+                icon: Icons.account_balance_wallet_rounded,
+                color: warningOrange,
+                isLarge: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildSummaryCard(
+                title: 'High-Risk',
+                value: _highRiskMembers.toString(),
+                icon: Icons.warning_rounded,
+                color: dangerRed,
+              ),
+            ),
+          ],
         ),
       ],
     );
   }
 
-  Widget _buildStatCard({
+  /// Build individual summary card
+  Widget _buildSummaryCard({
     required String title,
     required String value,
     required IconData icon,
     required Color color,
+    bool isLarge = false,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: softGray,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 24),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF64748B),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFinancialBreakdown(Map<String, dynamic> financials) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Financial Breakdown',
+          const SizedBox(height: 14),
+          Text(
+            title,
             style: TextStyle(
-              fontSize: 18,
+              color: textLight,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: textDark,
+              fontSize: isLarge ? 16 : 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
             ),
-          ),
-          const SizedBox(height: 20),
-
-          // Total Savings
-          _buildBreakdownRow(
-            label: 'Total Savings',
-            amount: financials['total_savings'],
-            color: const Color(0xFF4FC3F7),
-            isTotal: true,
-          ),
-          
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 16),
-
-          // Deductions Header
-          const Text(
-            'Deductions',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Taxes
-          _buildBreakdownRow(
-            label: 'Withholding Tax (15%)',
-            amount: financials['withholding_tax'],
-            color: const Color(0xFFFF9800),
-            showInfo: true,
-            infoText: 'Government tax on interest earned',
-          ),
-          const SizedBox(height: 8),
-          _buildBreakdownRow(
-            label: 'Local Service Tax (5%)',
-            amount: financials['local_service_tax'],
-            color: const Color(0xFFFF9800),
-            showInfo: true,
-            infoText: 'Local government service charge',
-          ),
-          
-          const SizedBox(height: 12),
-
-          // Platform Fees
-          _buildBreakdownRow(
-            label: 'Management Fee (2%)',
-            amount: financials['management_fee'],
-            color: const Color(0xFF9C27B0),
-            showInfo: true,
-            infoText: 'Platform operation & maintenance',
-          ),
-          const SizedBox(height: 8),
-          _buildBreakdownRow(
-            label: 'Transaction Fee (1%)',
-            amount: financials['transaction_fee'],
-            color: const Color(0xFF9C27B0),
-            showInfo: true,
-            infoText: 'Processing & banking charges',
-          ),
-
-          const SizedBox(height: 16),
-          const Divider(),
-          const SizedBox(height: 16),
-
-          // Net Amount
-          _buildBreakdownRow(
-            label: 'Net Amount Available',
-            amount: financials['net_amount'],
-            color: const Color(0xFF10B981),
-            isNet: true,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBreakdownRow({
-    required String label,
-    required int amount,
-    required Color color,
-    bool isTotal = false,
-    bool isNet = false,
-    bool showInfo = false,
-    String? infoText,
-  }) {
+  /// Build section header
+  Widget _buildSectionHeader(String title, IconData icon) {
     return Row(
       children: [
-        Expanded(
-          child: Row(
-            children: [
-              Container(
-                width: 4,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: color,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: isTotal || isNet ? 16 : 14,
-                    fontWeight: isTotal || isNet ? FontWeight.bold : FontWeight.w500,
-                    color: const Color(0xFF1E293B),
-                  ),
-                ),
-              ),
-              if (showInfo && infoText != null)
-                Tooltip(
-                  message: infoText,
-                  child: const Icon(
-                    Icons.info_outline,
-                    size: 16,
-                    color: Color(0xFF94A3B8),
-                  ),
-                ),
-            ],
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: primaryBlue.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
           ),
+          child: Icon(icon, color: primaryBlue, size: 20),
         ),
-        Text(
-          _formatCurrency(amount),
-          style: TextStyle(
-            fontSize: isTotal || isNet ? 18 : 16,
-            fontWeight: FontWeight.bold,
-            color: isNet ? color : const Color(0xFF1E293B),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTaxExplanation() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F9FF),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFF4FC3F7).withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4FC3F7),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.lightbulb_outline,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Text(
-                'Understanding Deductions',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildExplanationItem(
-            title: 'Taxes (20% total)',
-            description: 'Mandatory government taxes: 15% withholding tax on interest + 5% local service tax',
-          ),
-          const SizedBox(height: 12),
-          _buildExplanationItem(
-            title: 'Platform Fees (3% total)',
-            description: '2% management fee for operations + 1% transaction processing fee',
-          ),
-          const SizedBox(height: 12),
-          _buildExplanationItem(
-            title: 'Your Money',
-            description: 'The net amount (77% of savings) is available for investment in real estate',
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExplanationItem({
-    required String title,
-    required String description,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+        const SizedBox(width: 12),
         Text(
           title,
           style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF1E293B),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          description,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Color(0xFF64748B),
-            height: 1.4,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: textDark,
+            letterSpacing: -0.5,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF1E293B),
+  /// Build recent activity list
+  Widget _buildRecentActivity() {
+    final recentMembers = _mockMembers.take(4).toList();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0),
+          width: 1,
+        ),
+      ),
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: recentMembers.length,
+        separatorBuilder: (context, index) => const Divider(height: 1, indent: 72),
+        itemBuilder: (context, index) {
+          final member = recentMembers[index];
+          final riskLevel = _getRiskLevel(member);
+
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            leading: Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text(
+                  member['name'].toString().substring(0, 1),
+                  style: TextStyle(
+                    color: _getRiskColor(riskLevel),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ),
+            title: Text(
+              member['name'],
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                color: textDark,
+              ),
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(
+                '${_formatCurrency(member['lastAmount'])} • ${member['lastActivity']}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: textLight,
+                ),
+              ),
+            ),
+            trailing: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                riskLevel,
+                style: TextStyle(
+                  color: _getRiskColor(riskLevel),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildAllClustersView() {
+  /// Build cluster overview
+  Widget _buildClusterOverview() {
     return Column(
-      children: _clusters.map((cluster) {
-        final clusterFinancials = {
-          'total_savings': cluster['total_savings'],
-          'withholding_tax': (cluster['total_savings'] * 0.15).round(),
-          'local_service_tax': (cluster['total_savings'] * 0.05).round(),
-          'management_fee': (cluster['total_savings'] * 0.02).round(),
-          'transaction_fee': (cluster['total_savings'] * 0.01).round(),
-        };
-        final totalDeductions = clusterFinancials['withholding_tax']! + 
-                                 clusterFinancials['local_service_tax']! +
-                                 clusterFinancials['management_fee']! +
-                                 clusterFinancials['transaction_fee']!;
-        final netAmount = cluster['total_savings'] - totalDeductions;
-
+      children: _mockClusters.map((cluster) {
         return Container(
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+              width: 1,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF4FC3F7).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.groups,
-                          color: Color(0xFF4FC3F7),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            cluster['name'],
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1E293B),
-                            ),
-                          ),
-                          Text(
-                            '${cluster['members']} members',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF64748B),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Active',
-                      style: TextStyle(
-                        color: Color(0xFF10B981),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+              Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: (cluster['color'] as Color).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.groups_rounded,
+                  color: cluster['color'] as Color,
+                  size: 26,
+                ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      cluster['name'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${cluster['memberCount']} members',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: textLight,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  _buildClusterMetric('Savings', _formatCurrency(cluster['total_savings'])),
-                  _buildClusterMetric('Net', _formatCurrency(netAmount)),
-                  _buildClusterMetric('Deductions', _formatCurrency(totalDeductions)),
+                  Text(
+                    _formatCurrency(cluster['totalSavings']),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Total Savings',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: textLight,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -688,133 +663,101 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildClusterMetric(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: Color(0xFF64748B),
+  /// Build quick actions grid
+  Widget _buildQuickActions() {
+    final actions = [
+      {
+        'title': 'Manage Members',
+        'icon': Icons.person_add_rounded,
+        'color': primaryBlue,
+      },
+      {
+        'title': 'Manage Clusters',
+        'icon': Icons.group_add_rounded,
+        'color': successGreen,
+      },
+      {
+        'title': 'View Reports',
+        'icon': Icons.assessment_rounded,
+        'color': warningOrange,
+      },
+      {
+        'title': 'Risk Monitoring',
+        'icon': Icons.warning_amber_rounded,
+        'color': dangerRed,
+      },
+    ];
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.5,
+      ),
+      itemCount: actions.length,
+      itemBuilder: (context, index) {
+        final action = actions[index];
+        return _buildActionButton(
+          title: action['title'] as String,
+          icon: action['icon'] as IconData,
+          color: action['color'] as Color,
+        );
+      },
+    );
+  }
+
+  /// Build individual action button
+  Widget _buildActionButton({
+    required String title,
+    required IconData icon,
+    required Color color,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$title - Coming Soon'),
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: const Color(0xFFE2E8F0),
+            width: 1,
           ),
         ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color, size: 26),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: textDark,
+              ),
+            ),
+          ],
         ),
-      ],
-    );
-  }
-
-  Widget _buildClusterDetails() {
-    final cluster = _clusters.firstWhere((c) => c['name'] == _selectedCluster);
-    final financials = _calculateFinancials();
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4FC3F7).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.groups,
-                  color: Color(0xFF4FC3F7),
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    cluster['name'],
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
-                    ),
-                  ),
-                  Text(
-                    '${cluster['members']} active members',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          _buildDetailRow('Total Savings', _formatCurrency(cluster['total_savings'])),
-          _buildDetailRow('Monthly Contribution', _formatCurrency(cluster['monthly_contribution'])),
-          _buildDetailRow('Average per Member', _formatCurrency((cluster['total_savings'] / cluster['members']).round())),
-          const SizedBox(height: 12),
-          const Divider(),
-          const SizedBox(height: 12),
-          _buildDetailRow('Net Available', _formatCurrency(financials['net_amount']), isHighlight: true),
-        ],
       ),
     );
-  }
-
-  Widget _buildDetailRow(String label, String value, {bool isHighlight = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: isHighlight ? 16 : 14,
-              fontWeight: isHighlight ? FontWeight.bold : FontWeight.w500,
-              color: const Color(0xFF64748B),
-            ),
-          ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: isHighlight ? 18 : 16,
-              fontWeight: FontWeight.bold,
-              color: isHighlight ? const Color(0xFF10B981) : const Color(0xFF1E293B),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatCurrency(int amount) {
-    if (amount >= 1000000) {
-      return 'UGX ${(amount / 1000000).toStringAsFixed(1)}M';
-    } else if (amount >= 1000) {
-      return 'UGX ${(amount / 1000).toStringAsFixed(0)}K';
-    }
-    return 'UGX ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}';
   }
 }
