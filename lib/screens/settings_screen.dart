@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Features: App settings, account preferences, risk thresholds, support
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -16,11 +16,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // PIIC Brand Colors
   static const Color primaryBlue = Color(0xFF4FC3F7);
   static const Color deepBlue = Color(0xFF0288D1);
-  static const Color softGray = Color(0xFFF5F7FA);
   static const Color textDark = Color(0xFF2D3748);
   static const Color textLight = Color(0xFF718096);
-  static const Color successGreen = Color(0xFF66BB6A);
-  static const Color warningOrange = Color(0xFFFF9800);
   static const Color dangerRed = Color(0xFFEF5350);
 
   bool _pushNotifications = true;
@@ -427,7 +424,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeColor: primaryBlue,
+        thumbColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
+              return primaryBlue;
+            }
+            return Colors.grey.shade400;
+          },
+        ),
+        trackColor: WidgetStateProperty.resolveWith<Color>(
+          (Set<WidgetState> states) {
+            if (states.contains(WidgetState.selected)) {
+              return primaryBlue.withValues(alpha: 0.5);
+            }
+            return Colors.grey.shade300;
+          },
+        ),
       ),
     );
   }

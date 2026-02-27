@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 class ClusterDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> cluster;
 
-  const ClusterDetailsScreen({Key? key, required this.cluster}) : super(key: key);
+  const ClusterDetailsScreen({super.key, required this.cluster});
 
   @override
   State<ClusterDetailsScreen> createState() => _ClusterDetailsScreenState();

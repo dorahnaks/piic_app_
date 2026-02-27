@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+// import '../utils/constants.dart';
 
 class InvestmentsScreen extends StatelessWidget {
   const InvestmentsScreen({super.key});
@@ -6,40 +7,24 @@ class InvestmentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
-        title: const Text("My Investments"),
-        backgroundColor: const Color(0xFF8CC63F),
+        title: const Text('Investments', style: TextStyle(color: Colors.black87)),
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: const [
-          investmentCard("Plot Package", "50x100ft", "Active"),
-          investmentCard("Farmland", "½ Acre", "Completed"),
-          investmentCard("Housing", "2 Bedroom House", "Pending"),
-        ],
-      ),
-    );
-  }
-}
-
-class investmentCard extends StatelessWidget {
-  final String title;
-  final String size;
-  final String status;
-
-  const investmentCard(this.title, this.size, this.status, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 15),
-      child: ListTile(
-        leading: const Icon(Icons.home_work),
-        title: Text(title),
-        subtitle: Text(size),
-        trailing:
-            Text(status, style: const TextStyle(fontWeight: FontWeight.bold)),
-      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.home_work, size: 80, color: Colors.grey.shade300),
+            const SizedBox(height: 20),
+            const Text('Investment Opportunities', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            const Text('Coming soon...', style: const TextStyle(color: Colors.grey)),
+          ],
+        )
+      )
     );
   }
 }

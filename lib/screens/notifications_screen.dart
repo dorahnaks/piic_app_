@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Features: Categorized notifications, read/unread status, quick actions
 
 class NotificationsScreen extends StatefulWidget {
-  const NotificationsScreen({Key? key}) : super(key: key);
+  const NotificationsScreen({super.key});
 
   @override
   State<NotificationsScreen> createState() => _NotificationsScreenState();
@@ -15,12 +15,9 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   // PIIC Brand Colors
   static const Color primaryBlue = Color(0xFF4FC3F7);
-  static const Color deepBlue = Color(0xFF0288D1);
   static const Color softGray = Color(0xFFF5F7FA);
   static const Color textDark = Color(0xFF2D3748);
   static const Color textLight = Color(0xFF718096);
-  static const Color successGreen = Color(0xFF66BB6A);
-  static const Color warningOrange = Color(0xFFFF9800);
   static const Color dangerRed = Color(0xFFEF5350);
 
   String _selectedTab = 'All';

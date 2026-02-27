@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 /// Features: Transaction list, filters, search, payment details, export
 
 class PaymentHistoryScreen extends StatefulWidget {
-  const PaymentHistoryScreen({Key? key}) : super(key: key);
+  const PaymentHistoryScreen({super.key});
 
   @override
   State<PaymentHistoryScreen> createState() => _PaymentHistoryScreenState();

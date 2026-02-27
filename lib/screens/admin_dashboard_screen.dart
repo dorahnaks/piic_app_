@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'member_management_screen.dart';
+import 'cluster_details_screen.dart';
+import 'payment_history_screen.dart';
+import 'notifications_screen.dart';
 
 /// PIIC ClusterSave - Admin Dashboard Screen
 /// 
@@ -7,7 +11,7 @@ import 'package:flutter/material.dart';
 /// Design: Clean, modern, with signature blue gradient theme
 
 class AdminDashboardScreen extends StatefulWidget {
-  const AdminDashboardScreen({Key? key}) : super(key: key);
+  const AdminDashboardScreen({super.key});
 
   @override
   State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
@@ -519,59 +523,62 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           final member = recentMembers[index];
           final riskLevel = _getRiskLevel(member);
 
-          return ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 8,
-            ),
-            leading: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+          return InkWell(
+            onTap: () => _showMemberQuickView(member),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 8,
               ),
-              child: Center(
-                child: Text(
-                  member['name'].toString().substring(0, 1),
-                  style: TextStyle(
-                    color: _getRiskColor(riskLevel),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+              leading: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    member['name'].toString().substring(0, 1),
+                    style: TextStyle(
+                      color: _getRiskColor(riskLevel),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
               ),
-            ),
-            title: Text(
-              member['name'],
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
-                color: textDark,
-              ),
-            ),
-            subtitle: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: Text(
-                '${_formatCurrency(member['lastAmount'])} • ${member['lastActivity']}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: textLight,
+              title: Text(
+                member['name'],
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: textDark,
                 ),
               ),
-            ),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  '${_formatCurrency(member['lastAmount'])} • ${member['lastActivity']}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: textLight,
+                  ),
+                ),
               ),
-              child: Text(
-                riskLevel,
-                style: TextStyle(
-                  color: _getRiskColor(riskLevel),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+              trailing: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  riskLevel,
+                  style: TextStyle(
+                    color: _getRiskColor(riskLevel),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -585,78 +592,88 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget _buildClusterOverview() {
     return Column(
       children: _mockClusters.map((cluster) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFFE2E8F0),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: (cluster['color'] as Color).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.groups_rounded,
-                  color: cluster['color'] as Color,
-                  size: 26,
-                ),
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ClusterDetailsScreen(cluster: cluster),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            );
+          },
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: const Color(0xFFE2E8F0),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: (cluster['color'] as Color).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.groups_rounded,
+                    color: cluster['color'] as Color,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        cluster['name'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${cluster['memberCount']} members',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: textLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      cluster['name'],
+                      _formatCurrency(cluster['totalSavings']),
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 15,
                         fontWeight: FontWeight.bold,
                         color: textDark,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${cluster['memberCount']} members',
+                      'Total Savings',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 11,
                         color: textLight,
                       ),
                     ),
                   ],
                 ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatCurrency(cluster['totalSavings']),
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Total Savings',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: textLight,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         );
       }).toList(),
@@ -670,21 +687,43 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         'title': 'Manage Members',
         'icon': Icons.person_add_rounded,
         'color': primaryBlue,
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const MemberManagementScreen()),
+          );
+        },
       },
       {
-        'title': 'Manage Clusters',
-        'icon': Icons.group_add_rounded,
+        'title': 'Payment History',
+        'icon': Icons.receipt_long_rounded,
         'color': successGreen,
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PaymentHistoryScreen()),
+          );
+        },
       },
       {
-        'title': 'View Reports',
-        'icon': Icons.assessment_rounded,
+        'title': 'Notifications',
+        'icon': Icons.notifications_active_rounded,
         'color': warningOrange,
+        'onTap': () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+          );
+        },
       },
       {
         'title': 'Risk Monitoring',
         'icon': Icons.warning_amber_rounded,
         'color': dangerRed,
+        'onTap': () {
+          // Show risk summary
+          _showRiskSummary();
+        },
       },
     ];
 
@@ -704,6 +743,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           title: action['title'] as String,
           icon: action['icon'] as IconData,
           color: action['color'] as Color,
+          onTap: action['onTap'] as VoidCallback,
         );
       },
     );
@@ -714,17 +754,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     required String title,
     required IconData icon,
     required Color color,
+    required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('$title - Coming Soon'),
-            duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      },
+      onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -755,6 +788,339 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 color: textDark,
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Show member quick view dialog
+  void _showMemberQuickView(Map<String, dynamic> member) {
+    final riskLevel = _getRiskLevel(member);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Center(
+                child: Text(
+                  member['name'].toString().substring(0, 1),
+                  style: TextStyle(
+                    color: _getRiskColor(riskLevel),
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              member['name'],
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: textDark,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: _getRiskColor(riskLevel).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                '$riskLevel Risk',
+                style: TextStyle(
+                  color: _getRiskColor(riskLevel),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildQuickStat('Total Contributions', _formatCurrency(member['totalContributions'])),
+            const SizedBox(height: 12),
+            _buildQuickStat('Last Activity', member['lastActivity']),
+            const SizedBox(height: 12),
+            _buildQuickStat('Missed Payments', '${member['missedPayments']}'),
+            const SizedBox(height: 12),
+            _buildQuickStat('Late Payments', '${member['latePayments']}'),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MemberManagementScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'View Full Profile',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build quick stat row for member dialog
+  Widget _buildQuickStat(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: softGray,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(fontSize: 14, color: textLight),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: textDark,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Show risk summary dialog
+  void _showRiskSummary() {
+    final highRiskMembers = _mockMembers.where((member) {
+      int missed = member['missedPayments'] as int;
+      int late = member['latePayments'] as int;
+      return missed >= 2 || late >= 3;
+    }).toList();
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: dangerRed.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.warning_rounded,
+                    color: dangerRed,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                const Expanded(
+                  child: Text(
+                    'Risk Monitoring',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: textDark,
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: dangerRed.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.warning_rounded, color: dangerRed, size: 40),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${highRiskMembers.length} High-Risk Members',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: textDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Require immediate attention',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: textLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'High-Risk Members',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: textDark,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...highRiskMembers.map((member) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: softGray,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: dangerRed.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          member['name'].toString().substring(0, 1),
+                          style: const TextStyle(
+                            color: dangerRed,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            member['name'],
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: textDark,
+                            ),
+                          ),
+                          Text(
+                            'Missed: ${member['missedPayments']} • Late: ${member['latePayments']}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: textLight,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, color: dangerRed),
+                  ],
+                ),
+              );
+            }),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const MemberManagementScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Manage Members',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
           ],
         ),
       ),
